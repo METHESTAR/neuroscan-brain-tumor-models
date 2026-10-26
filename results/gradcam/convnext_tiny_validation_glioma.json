@@ -1,0 +1,12 @@
+{
+  "model": "convnext_tiny",
+  "checkpoint": "convnext_tiny.pth",
+  "image_file": "000000.jpg",
+  "folder_label": "glioma",
+  "predicted_class": "glioma",
+  "predicted_probability": 0.9985314607620239,
+  "heatmap_target_class": "glioma",
+  "target_layer": "features[-1]",
+  "device": "cuda",
+  "interpretation_note": "Grad-CAM is a coarse model-attention visualization, not a tumor segmentation or diagnostic result."
+}
