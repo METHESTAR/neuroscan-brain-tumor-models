@@ -1,0 +1,82 @@
+{
+  "architecture": "MobileNetV3-Small",
+  "purpose": "brain MRI versus non-MRI input gate; blur check is a separate Laplacian-variance rule",
+  "pretrained": "ImageNet-1K",
+  "input_size": 224,
+  "device": "cuda",
+  "epochs_completed": 6,
+  "best_epoch": 1,
+  "best_validation_loss": 0.00022583448103368067,
+  "mri_threshold": 0.9996787309646606,
+  "blur_threshold": 77.11737655639648,
+  "validation_metrics_at_mri_threshold": {
+    "accuracy": 0.9978013192084749,
+    "brain_mri_sensitivity": 0.9890329012961117,
+    "non_mri_rejection_rate": 1.0
+  },
+  "test_metrics_at_mri_threshold": {
+    "accuracy": 0.9945431867789211,
+    "brain_mri_sensitivity": 0.9855012427506213,
+    "non_mri_rejection_rate": 1.0
+  },
+  "test_loss": 0.0002525658978656847,
+  "test_accuracy_at_0_5": 1.0,
+  "synthetic_blur_probe_count": 200,
+  "source_counts": {
+    "mri_train": 4000,
+    "mri_val": 1003,
+    "mri_test": 2414,
+    "non_mri_train": 4000,
+    "non_mri_val": 4000,
+    "non_mri_test": 4000
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.01644805671274662,
+      "val_loss": 0.00022583448103368067,
+      "val_accuracy_at_0_5": 1.0
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.0001977635185521649,
+      "val_loss": 2.3751878917182165e-05,
+      "val_accuracy_at_0_5": 1.0
+    },
+    {
+      "epoch": 3,
+      "train_loss": 5.966600127612764e-05,
+      "val_loss": 6.706526879705291e-06,
+      "val_accuracy_at_0_5": 1.0
+    },
+    {
+      "epoch": 4,
+      "train_loss": 4.8663854301594254e-05,
+      "val_loss": 8.770936949351943e-06,
+      "val_accuracy_at_0_5": 1.0
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.00012572623121195648,
+      "val_loss": 3.887153311953385e-06,
+      "val_accuracy_at_0_5": 1.0
+    },
+    {
+      "epoch": 6,
+      "train_loss": 1.1834156736995282e-05,
+      "val_loss": 2.5823339196877913e-06,
+      "val_accuracy_at_0_5": 1.0
+    }
+  ],
+  "limitations": [
+    "Held-out non-MRI evaluation uses OrganAMNIST abdominal CT; rejection of ordinary photographs, X-rays, or every other scan type has not been established.",
+    "The blur check uses a sharpness heuristic; mild blur can pass and naturally smooth images may be rejected.",
+    "This is a research input gate, not a clinical validation or diagnostic test."
+  ],
+  "synthetic_blur_detection_rates": {
+    "gaussian_radius_1.5": 0.585,
+    "gaussian_radius_2.0": 0.945,
+    "gaussian_radius_3.0": 0.975
+  },
+  "negative_training_source": "OrganAMNIST abdominal CT images (MedMNIST; CC BY 4.0)"
+}

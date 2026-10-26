@@ -37,6 +37,10 @@ The `.pth` files in `models/` contain inference-ready model state dictionaries a
 - `models/`: best inference checkpoints
 - `app.py`: local Streamlit image-upload interface (uses ConvNeXt-Tiny)
 - `app-requirements.txt`: app and model dependencies
+- `input_gate.py`: blur and brain-MRI input checks used before tumor classification
+- `models/input_gate_mobilenetv3_small.pth`: trained MobileNetV3-Small input gate
+- `training/train_input_gate.py`: reproducible input-gate training script; downloads the public OrganAMNIST negative examples automatically
+- `results/input_gate/summary.json`: input-gate thresholds and held-out results
 - `results/<model>/`: epoch metrics, test report, run summary, training curve, and confusion matrix
 - `results/gradcam/`: example Grad-CAM visualization and prediction metadata
 - `interpretability/`: reusable Grad-CAM script for all three checkpoints
@@ -55,7 +59,11 @@ Supported model names: `swin_tiny`, `resnet50`, `convnext_tiny`.
 
 ## Streamlit app
 
-The upload interface uses ConvNeXt-Tiny, which had the highest measured test accuracy of the three models in this experiment. It displays the predicted class and the probability scores for all four classes. By default, the app runs locally, keeps the uploaded image in memory, and does not write it to disk.
+The upload interface uses ConvNeXt-Tiny, which had the highest measured test accuracy of the three models in this experiment. Before tumor classification, it checks minimum image size, applies a Laplacian-variance blur screen, and uses a MobileNetV3-Small gate trained to separate brain MRI images from abdominal CT examples. It displays the predicted class and the probability scores for all four classes only when the input checks pass. By default, the app runs locally, keeps the uploaded image in memory, and does not write it to disk.
+
+The gate's validation threshold retained 98.9% of the prepared Validation brain MRIs; on its separate held-out set, it retained 98.6% of brain MRIs and rejected all 4,000 sampled OrganAMNIST CT images. The blur threshold was calibrated to preserve 99% of clear Validation MRIs. On 200 separate MRI images with synthetic Gaussian blur, rejection was 58.5% at radius 1.5, 94.5% at radius 2, and 97.5% at radius 3. See `results/input_gate/summary.json` for the full metrics and training history.
+
+These are narrow research checks. The non-MRI evaluation set is abdominal CT, so rejection of natural photos, X-rays, or every other MRI type has not been established. The blur heuristic can miss mild blur and may reject naturally smooth images. MedMNIST is CC BY 4.0; see the [official MedMNIST repository](https://github.com/MedMNIST/MedMNIST) for attribution and dataset details. The input gate is not clinically validated.
 
 From the repository folder, install the app dependencies and launch it:
 

@@ -10,10 +10,12 @@ from PIL import Image, UnidentifiedImageError
 from torchvision import transforms
 
 from inference import load_model
+from input_gate import assess_upload, load_gate
 
 
 ROOT = Path(__file__).resolve().parent
 MODEL_PATH = ROOT / "models" / "convnext_tiny.pth"
+GATE_PATH = ROOT / "models" / "input_gate_mobilenetv3_small.pth"
 MEAN = (0.485, 0.456, 0.406)
 STD = (0.229, 0.224, 0.225)
 DISPLAY_NAMES = {
@@ -51,6 +53,13 @@ def get_model():
     return model, classes, image_size, device
 
 
+@st.cache_resource(show_spinner="Loading the image-check model…")
+def get_gate():
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model, state = load_gate(GATE_PATH, device)
+    return model, state, device
+
+
 def preprocess(image: Image.Image, size: int) -> torch.Tensor:
     pipeline = transforms.Compose(
         [
@@ -81,6 +90,7 @@ with st.sidebar:
     st.caption("The same 2,414-image test set was used for all three models, so this comparison is exploratory.")
     st.divider()
     st.caption("Accepted image types: JPG, JPEG, PNG, BMP, TIFF, WEBP")
+    st.caption("The image gate was evaluated on abdominal CT examples. It is not proven to reject every photo or scan type.")
 
 uploaded_file = st.file_uploader(
     "Choose a brain MRI image",
@@ -96,36 +106,46 @@ if uploaded_file is not None:
     else:
         st.image(image, caption=uploaded_file.name, use_container_width=True)
         try:
-            model, classes, image_size, device = get_model()
-            tensor = preprocess(image, image_size).to(device)
-            with st.spinner("Analyzing image…"):
-                with torch.inference_mode():
-                    probabilities = model(tensor).softmax(dim=1)[0].cpu()
-            order = torch.argsort(probabilities, descending=True).tolist()
-            predicted_index = order[0]
-            predicted_class = classes[predicted_index]
-            confidence = float(probabilities[predicted_index])
+            gate_model, gate_state, gate_device = get_gate()
+            checks = assess_upload(image, gate_model, gate_state, gate_device)
+            if checks["reason"] == "too_small":
+                st.error("This image is too small to check reliably. Please upload a larger MRI image.")
+            elif checks["reason"] == "blurry":
+                st.error("This image looks too blurry or blank for a reliable result. Please upload a clearer MRI image.")
+            elif checks["reason"] == "not_brain_mri":
+                st.error("This image does not look like a brain MRI, so the tumor classifier was not run.")
+            else:
+                st.success("Image check passed: it looks like a clear brain MRI.")
+                model, classes, image_size, device = get_model()
+                tensor = preprocess(image, image_size).to(device)
+                with st.spinner("Analyzing image…"):
+                    with torch.inference_mode():
+                        probabilities = model(tensor).softmax(dim=1)[0].cpu()
+                order = torch.argsort(probabilities, descending=True).tolist()
+                predicted_index = order[0]
+                predicted_class = classes[predicted_index]
+                confidence = float(probabilities[predicted_index])
 
-            st.markdown(
-                f'<div class="result"><strong>Predicted class: {DISPLAY_NAMES.get(predicted_class, predicted_class)}</strong>'
-                f'<br>Model score: {confidence:.1%}</div>',
-                unsafe_allow_html=True,
-            )
-            chart_data = pd.DataFrame(
-                {
-                    "Class": [DISPLAY_NAMES.get(classes[index], classes[index]) for index in order],
-                    "Probability": [float(probabilities[index]) for index in order],
-                }
-            ).set_index("Class")
-            st.subheader("Class probability scores")
-            st.bar_chart(chart_data, x_label="Class", y_label="Probability", height=260)
-            st.dataframe(
-                chart_data.style.format({"Probability": "{:.1%}"}),
-                use_container_width=True,
-            )
-            st.caption(f"Inference device: {device}")
+                st.markdown(
+                    f'<div class="result"><strong>Predicted class: {DISPLAY_NAMES.get(predicted_class, predicted_class)}</strong>'
+                    f'<br>Model score: {confidence:.1%}</div>',
+                    unsafe_allow_html=True,
+                )
+                chart_data = pd.DataFrame(
+                    {
+                        "Class": [DISPLAY_NAMES.get(classes[index], classes[index]) for index in order],
+                        "Probability": [float(probabilities[index]) for index in order],
+                    }
+                ).set_index("Class")
+                st.subheader("Class probability scores")
+                st.bar_chart(chart_data, x_label="Class", y_label="Probability", height=260)
+                st.dataframe(
+                    chart_data.style.format({"Probability": "{:.1%}"}),
+                    use_container_width=True,
+                )
+                st.caption(f"Inference device: {device}")
         except FileNotFoundError:
-            st.error(f"Model checkpoint not found at `{MODEL_PATH}`. Keep the `models` folder beside `app.py`.")
+            st.error("A model file is missing. Keep both required model files in the `models` folder beside `app.py`.")
         except Exception as exc:
             st.error(f"Could not run the classifier: {exc}")
 
