@@ -35,6 +35,8 @@ The `.pth` files in `models/` contain inference-ready model state dictionaries a
 ## Files
 
 - `models/`: best inference checkpoints
+- `app.py`: local Streamlit image-upload interface (uses ConvNeXt-Tiny)
+- `app-requirements.txt`: app and model dependencies
 - `results/<model>/`: epoch metrics, test report, run summary, training curve, and confusion matrix
 - `results/gradcam/`: example Grad-CAM visualization and prediction metadata
 - `interpretability/`: reusable Grad-CAM script for all three checkpoints
@@ -50,6 +52,19 @@ python inference.py --model models/convnext_tiny.pth --image path/to/mri.png
 ```
 
 Supported model names: `swin_tiny`, `resnet50`, `convnext_tiny`.
+
+## Streamlit app
+
+The upload interface uses ConvNeXt-Tiny, which had the highest measured test accuracy of the three models in this experiment. It displays the predicted class and the probability scores for all four classes. By default, the app runs locally, keeps the uploaded image in memory, and does not write it to disk.
+
+From the repository folder, install the app dependencies and launch it:
+
+```powershell
+python -m pip install -r app-requirements.txt
+python -m streamlit run app.py
+```
+
+The browser page opened by Streamlit lets you choose a JPG, PNG, or other supported MRI image. The app falls back to CPU if CUDA is unavailable.
 
 ## Grad-CAM visualization
 
