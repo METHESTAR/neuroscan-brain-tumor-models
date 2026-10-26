@@ -193,7 +193,7 @@ def main():
         train_loss = total / len(train_ds)
         history.append({"epoch": epoch, "train_loss": train_loss, "val_loss": val_loss, "val_accuracy_at_0_5": val_acc})
         print(f"Epoch {epoch}/{args.epochs}: train_loss={train_loss:.4f} val_loss={val_loss:.4f} val_acc={val_acc:.4f}", flush=True)
-        if val_loss < best_val - 0.001:
+        if val_loss < best_val - 0.000001:
             best_val, best_epoch, stale = val_loss, epoch, 0
             torch.save({"model_state_dict": model.state_dict()}, OUT_PATH)
         else:
@@ -244,6 +244,7 @@ def main():
         "epochs_completed": len(history),
         "best_epoch": best_epoch,
         "best_validation_loss": best_val,
+        "early_stopping": {"monitor": "validation loss", "patience": args.patience, "minimum_improvement": 0.000001, "epoch_cap": args.epochs},
         "mri_threshold": mri_threshold,
         "blur_threshold": blur_threshold,
         "validation_metrics_at_mri_threshold": metrics_at(val_probs, val_labels, mri_threshold),

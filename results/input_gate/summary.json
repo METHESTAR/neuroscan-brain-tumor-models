@@ -4,24 +4,36 @@
   "pretrained": "ImageNet-1K",
   "input_size": 224,
   "device": "cuda",
-  "epochs_completed": 6,
-  "best_epoch": 1,
-  "best_validation_loss": 0.00022583448103368067,
-  "mri_threshold": 0.9996787309646606,
+  "epochs_completed": 13,
+  "best_epoch": 8,
+  "best_validation_loss": 3.5405801266633686e-07,
+  "early_stopping": {
+    "monitor": "validation loss",
+    "patience": 5,
+    "minimum_improvement": 1e-06,
+    "epoch_cap": 25
+  },
+  "mri_threshold": 0.9999959468841553,
   "blur_threshold": 77.11737655639648,
   "validation_metrics_at_mri_threshold": {
-    "accuracy": 0.9978013192084749,
-    "brain_mri_sensitivity": 0.9890329012961117,
+    "accuracy": 0.9980011992804317,
+    "brain_mri_sensitivity": 0.9900299102691924,
     "non_mri_rejection_rate": 1.0
   },
   "test_metrics_at_mri_threshold": {
-    "accuracy": 0.9945431867789211,
-    "brain_mri_sensitivity": 0.9855012427506213,
+    "accuracy": 0.9970377299657001,
+    "brain_mri_sensitivity": 0.992129246064623,
     "non_mri_rejection_rate": 1.0
   },
-  "test_loss": 0.0002525658978656847,
+  "test_loss": 8.287298799277425e-05,
   "test_accuracy_at_0_5": 1.0,
+  "synthetic_blur_detection_rates": {
+    "gaussian_radius_1_5": 0.63,
+    "gaussian_radius_2_0": 0.925,
+    "gaussian_radius_3_0": 0.97
+  },
   "synthetic_blur_probe_count": 200,
+  "negative_training_source": "OrganAMNIST abdominal CT images (MedMNIST)",
   "source_counts": {
     "mri_train": 4000,
     "mri_val": 1003,
@@ -33,50 +45,86 @@
   "history": [
     {
       "epoch": 1,
-      "train_loss": 0.01644805671274662,
-      "val_loss": 0.00022583448103368067,
+      "train_loss": 0.016447948976390764,
+      "val_loss": 0.00022557079925354664,
       "val_accuracy_at_0_5": 1.0
     },
     {
       "epoch": 2,
-      "train_loss": 0.0001977635185521649,
-      "val_loss": 2.3751878917182165e-05,
+      "train_loss": 0.0001945691365890525,
+      "val_loss": 2.5687176747204854e-05,
       "val_accuracy_at_0_5": 1.0
     },
     {
       "epoch": 3,
-      "train_loss": 5.966600127612764e-05,
-      "val_loss": 6.706526879705291e-06,
+      "train_loss": 6.0553751360203026e-05,
+      "val_loss": 6.870395597881384e-06,
       "val_accuracy_at_0_5": 1.0
     },
     {
       "epoch": 4,
-      "train_loss": 4.8663854301594254e-05,
-      "val_loss": 8.770936949351943e-06,
+      "train_loss": 4.7972208576084085e-05,
+      "val_loss": 8.547534567889918e-06,
       "val_accuracy_at_0_5": 1.0
     },
     {
       "epoch": 5,
-      "train_loss": 0.00012572623121195648,
-      "val_loss": 3.887153311953385e-06,
+      "train_loss": 0.00021148305231690756,
+      "val_loss": 6.074692065215897e-06,
       "val_accuracy_at_0_5": 1.0
     },
     {
       "epoch": 6,
-      "train_loss": 1.1834156736995282e-05,
-      "val_loss": 2.5823339196877913e-06,
+      "train_loss": 0.00022892602365709536,
+      "val_loss": 1.3873796343668113e-06,
+      "val_accuracy_at_0_5": 1.0
+    },
+    {
+      "epoch": 7,
+      "train_loss": 2.820116714110554e-05,
+      "val_loss": 4.712034630647278e-07,
+      "val_accuracy_at_0_5": 1.0
+    },
+    {
+      "epoch": 8,
+      "train_loss": 6.8385077444190755e-06,
+      "val_loss": 3.5405801266633686e-07,
+      "val_accuracy_at_0_5": 1.0
+    },
+    {
+      "epoch": 9,
+      "train_loss": 1.0188306637189725e-05,
+      "val_loss": 4.311991792684277e-07,
+      "val_accuracy_at_0_5": 1.0
+    },
+    {
+      "epoch": 10,
+      "train_loss": 5.0548420979055206e-06,
+      "val_loss": 1.2625036831192848e-07,
+      "val_accuracy_at_0_5": 1.0
+    },
+    {
+      "epoch": 11,
+      "train_loss": 2.28345875020608e-06,
+      "val_loss": 1.2410997190787256e-07,
+      "val_accuracy_at_0_5": 1.0
+    },
+    {
+      "epoch": 12,
+      "train_loss": 2.420580248550408e-06,
+      "val_loss": 8.018443539849397e-08,
+      "val_accuracy_at_0_5": 1.0
+    },
+    {
+      "epoch": 13,
+      "train_loss": 1.1213562409409406e-05,
+      "val_loss": 2.797500555451591e-07,
       "val_accuracy_at_0_5": 1.0
     }
   ],
   "limitations": [
-    "Held-out non-MRI evaluation uses OrganAMNIST abdominal CT; rejection of ordinary photographs, X-rays, or every other scan type has not been established.",
-    "The blur check uses a sharpness heuristic; mild blur can pass and naturally smooth images may be rejected.",
-    "This is a research input gate, not a clinical validation or diagnostic test."
-  ],
-  "synthetic_blur_detection_rates": {
-    "gaussian_radius_1.5": 0.585,
-    "gaussian_radius_2.0": 0.945,
-    "gaussian_radius_3.0": 0.975
-  },
-  "negative_training_source": "OrganAMNIST abdominal CT images (MedMNIST; CC BY 4.0)"
+    "The held-out non-MRI evaluation uses OrganAMNIST abdominal CT images; it does not establish rejection of ordinary photographs or every other scan type.",
+    "The blur check uses a sharpness heuristic and may reject intrinsically smooth images or accept some blurry ones.",
+    "This is an input-quality gate for research software, not a clinical validation or diagnostic test."
+  ]
 }
